@@ -69,14 +69,16 @@ class NyströmSGD(BaseEstimator, ClassifierMixin):
         eta = len(self.classes_) / (2.0 * Lambda[-1]) * torch.sqrt(Lambda[-1] / Lambda[1])
         print(" done.")
         w = torch.zeros((len(Lambda), len(self.classes_)), dtype=U.dtype, device=X.device)
+        train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(U, y), batch_size=self.batchsize, shuffle=True, drop_last=True)
         with tqdm.tqdm(total=self.epochs * self.batchsize * (len(U) // self.batchsize)) as pbar:
             for epoch in range(self.epochs):
                 accuracy = 0
                 total = 0
-                for U_batch, y_batch in torch.utils.data.DataLoader(torch.utils.data.TensorDataset(U, y), batch_size=self.batchsize, shuffle=True, drop_last=True):
-                    pbar.update(len(U_batch))
-
+                for U_batch, y_batch in train_loader:
+                    #Compute Predictions
                     pred = U_batch.matmul(w)
+
+                    #Compute Accuracy
                     accuracy += (pred.argmax(dim=1) == y_batch).sum().item()
                     total += len(y_batch)
 
@@ -88,6 +90,7 @@ class NyströmSGD(BaseEstimator, ClassifierMixin):
                     gradients = (Lambda_sgd.reshape(-1, 1) * U_batch.transpose(0, 1)).unsqueeze(-1)
                     w = w - eta / self.batchsize * (l_prime* gradients).sum(1)
 
+                    pbar.update(len(U_batch))
                     pbar.set_description(f"{l.mean().item():.4f} {accuracy / total:.4f}")
 
         # Store final estimator
