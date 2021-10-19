@@ -1,4 +1,1 @@
-# Nyström-SGD
-A pytorch implementation of the nyström-sgd algorithm proposed by Pfahler and Morik at ECML-PKDD 2018.
-
-
+<img src="https://github.com/Whadup/nystroem_sgd/raw/main/poster.png" width=100% />
