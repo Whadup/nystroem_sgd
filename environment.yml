@@ -1,4 +1,4 @@
-name: nystrom_sgd
+name: nystroem_sgd
 channels:
   - pytorch
   - nvidia
